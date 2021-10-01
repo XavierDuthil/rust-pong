@@ -1923,7 +1923,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "rust-game"
+name = "rust_game"
 version = "0.1.0"
 dependencies = [
  "getrandom",
