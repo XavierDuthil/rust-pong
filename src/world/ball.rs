@@ -1,6 +1,4 @@
 use crate::config::*;
-use ggez::conf::WindowMode;
-use ggez::event;
 use ggez::graphics::{self, Color};
 use ggez::{Context, GameResult};
 use glam::*;
@@ -14,22 +12,29 @@ pub struct Ball {
 }
 
 impl Ball {
-    pub fn other_side_position(&self) -> Option<Vec2> {
+    pub fn other_side_positions(&self) -> Vec<Vec2> {
+        let mut other_positions = vec![];
         if self.pos.x - self.radius < 0.0 {
-            Some(Vec2::new(SCREEN_WIDTH + self.pos.x, self.pos.y))
-        } else if self.pos.y - self.radius < 0.0 {
-            Some(Vec2::new(self.pos.x, SCREEN_HEIGHT + self.pos.y))
+            other_positions.push(Vec2::new(SCREEN_WIDTH + self.pos.x, self.pos.y));
         } else if self.pos.x + self.radius > SCREEN_WIDTH {
-            Some(Vec2::new(self.pos.x - SCREEN_WIDTH, self.pos.y))
-        } else if self.pos.y + self.radius > SCREEN_HEIGHT {
-            Some(Vec2::new(self.pos.x, self.pos.y - SCREEN_HEIGHT))
-        } else {
-            None
+            other_positions.push(Vec2::new(self.pos.x - SCREEN_WIDTH, self.pos.y));
         }
+
+        if self.pos.y - self.radius < 0.0 {
+            other_positions.push(Vec2::new(self.pos.x, SCREEN_HEIGHT + self.pos.y));
+        } else if self.pos.y + self.radius > SCREEN_HEIGHT {
+            other_positions.push(Vec2::new(self.pos.x, self.pos.y - SCREEN_HEIGHT));
+        }
+
+        if other_positions.len() == 2 {
+            other_positions.push(other_positions[0] + other_positions[1] - self.pos);
+        }
+        other_positions
     }
 
-    pub fn update(&mut self) {
-        self.pos += Vec2::new(self.direction.cos(), -self.direction.sin()) * self.speed;
+    pub fn update(&mut self, dt: f32) {
+
+        self.pos += Vec2::new(self.direction.cos(), -self.direction.sin()) * self.speed * dt;
         self.pos.x = self.pos.x.rem_euclid(SCREEN_WIDTH);
         self.pos.y = self.pos.y.rem_euclid(SCREEN_HEIGHT);
     }
@@ -45,7 +50,7 @@ impl Ball {
         )?;
         graphics::draw(ctx, &circle, (self.pos,))?;
 
-        if let Some(other_pos) = self.other_side_position() {
+        for other_pos in self.other_side_positions() {
             graphics::draw(ctx, &circle, (other_pos,))?;
         }
         Ok(())

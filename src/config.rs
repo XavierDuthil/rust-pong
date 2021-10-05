@@ -1,10 +1,16 @@
-use glam::Vec2;
-
 pub const SCREEN_HEIGHT: f32 = 1000.0;
 pub const SCREEN_WIDTH: f32 = 1000.0;
 
 pub const INITIAL_BALL_POSITION_X: f32 = 30.0;
 pub const INITIAL_BALL_POSITION_Y: f32 = 300.0;
-pub const INITIAL_BALL_SPEED: f32 = 5.0;
+pub const INITIAL_BALL_SPEED: f32 = 120.0;
 pub const INITIAL_BALL_DIRECTION: f32 = std::f32::consts::PI + 1.0;
-pub const BALL_RADIUS: f32 = 150.0;
+pub const BALL_RADIUS: f32 = 40.0;
+
+pub const PAD_SIZE_X: f32 = SCREEN_WIDTH/32.0;
+pub const PAD_SIZE_Y: f32 = SCREEN_HEIGHT/8.0;
+pub const PAD_SPEED: f32 = 1200.0;
+pub const INITIAL_PAD1_POSITION_X: f32 = SCREEN_WIDTH/2.0 - PAD_SIZE_X;
+pub const INITIAL_PAD1_POSITION_Y: f32 = SCREEN_HEIGHT/2.0;
+pub const INITIAL_PAD2_POSITION_X: f32 = SCREEN_WIDTH/2.0 + PAD_SIZE_X;
+pub const INITIAL_PAD2_POSITION_Y: f32 = SCREEN_HEIGHT/2.0;
