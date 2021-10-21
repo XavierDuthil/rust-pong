@@ -1,17 +1,18 @@
 use crate::config::*;
-use ggez::{event, GameError};
+use ggez::event;
 use ggez::graphics::{self};
 use ggez::{Context, GameResult};
-use ggez::event::{Axis, Button, ErrorOrigin, GamepadId, KeyMods, MouseButton, KeyCode};
-use ggez::winit::event::VirtualKeyCode;
+use ggez::event::{KeyMods, KeyCode};
 use ggez::timer;
-use glam::*;
+use cgmath::*;
 
 pub mod ball;
 pub mod pad;
+pub mod body;
 
 use ball::*;
 use pad::*;
+use body::*;
 
 #[derive(Debug)]
 pub struct World {
@@ -22,21 +23,20 @@ pub struct World {
 impl World {
     pub fn new() -> GameResult<World> {
         let p1 = Pad {
-            pos: Vec2::new(INITIAL_PAD1_POSITION_X,INITIAL_PAD1_POSITION_Y),
-            size: Vec2::new(PAD_SIZE_X, PAD_SIZE_Y),
+            pos: vec2(INITIAL_PAD1_POSITION_X,INITIAL_PAD1_POSITION_Y),
+            size: vec2(PAD_SIZE_X, PAD_SIZE_Y),
             action: Action::Idle,
-            speed: PAD_SPEED,
+            movement: vec2(0.0, PAD_SPEED),
         };
         let p2 = Pad {
-            pos: Vec2::new(INITIAL_PAD2_POSITION_X,INITIAL_PAD2_POSITION_Y),
-            size: Vec2::new(PAD_SIZE_X, PAD_SIZE_Y),
+            pos: vec2(INITIAL_PAD2_POSITION_X,INITIAL_PAD2_POSITION_Y),
+            size: vec2(PAD_SIZE_X, PAD_SIZE_Y),
             action: Action::Idle,
-            speed: PAD_SPEED,
+            movement: vec2(0.0, PAD_SPEED),
         };
         let b1 = Ball {
-            pos: Vec2::new(INITIAL_BALL_POSITION_X, INITIAL_BALL_POSITION_Y),
-            direction: INITIAL_BALL_DIRECTION,
-            speed: INITIAL_BALL_SPEED,
+            pos: vec2(INITIAL_BALL_POSITION_X, INITIAL_BALL_POSITION_Y),
+            movement: vec2(INITIAL_BALL_MOVEMENT_X, INITIAL_BALL_MOVEMENT_Y),
             radius: BALL_RADIUS,
         };
 
@@ -60,6 +60,12 @@ impl event::EventHandler<ggez::GameError> for World {
             p.update(dt);
         }
 
+        for b in &mut self.balls {
+            for p in &mut self.pads {
+                b.collide(p);
+            }
+        }
+
         Ok(())
     }
 
@@ -79,22 +85,26 @@ impl event::EventHandler<ggez::GameError> for World {
         Ok(())
     }
 
-    fn key_down_event(&mut self, ctx: &mut Context, keycode: KeyCode, _keymods: KeyMods, _repeat: bool) {
+    fn key_down_event(&mut self, _ctx: &mut Context, keycode: KeyCode, _keymods: KeyMods, _repeat: bool) {
         match keycode {
             KeyCode::Up => self.pads[1].move_up(),
             KeyCode::Down => self.pads[1].move_down(),
             KeyCode::Z => self.pads[0].move_up(),
-            KeyCode::D => self.pads[0].move_down(),
+            KeyCode::S => self.pads[0].move_down(),
             _ => (),
         }
     }
-    fn key_up_event(&mut self, ctx: &mut Context, keycode: KeyCode, _keymods: KeyMods) {
+    fn key_up_event(&mut self, _ctx: &mut Context, keycode: KeyCode, _keymods: KeyMods) {
         match keycode {
             KeyCode::Up => self.pads[1].stop_move_up(),
             KeyCode::Down => self.pads[1].stop_move_down(),
             KeyCode::Z => self.pads[0].stop_move_up(),
-            KeyCode::D => self.pads[0].stop_move_down(),
+            KeyCode::S => self.pads[0].stop_move_down(),
             _ => (),
         }
     }
+}
+
+fn intoMintVec2(v: Vector2<f32>) -> ggez::mint::Vector2<f32> {
+    ggez::mint::Vector2{x:v.x, y:v.y}
 }
