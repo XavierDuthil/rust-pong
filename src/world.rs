@@ -27,12 +27,14 @@ impl World {
             size: vec2(PAD_SIZE_X, PAD_SIZE_Y),
             action: Action::Idle,
             movement: vec2(0.0, PAD_SPEED),
+            score: 0,
         };
         let p2 = Pad {
             pos: vec2(INITIAL_PAD2_POSITION_X,INITIAL_PAD2_POSITION_Y),
             size: vec2(PAD_SIZE_X, PAD_SIZE_Y),
             action: Action::Idle,
             movement: vec2(0.0, PAD_SPEED),
+            score: 0,
         };
         let b1 = Ball {
             pos: vec2(INITIAL_BALL_POSITION_X, INITIAL_BALL_POSITION_Y),

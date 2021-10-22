@@ -39,6 +39,8 @@ impl Body for Ball {
         self.pos.y = self.pos.y.rem_euclid(SCREEN_HEIGHT);
     }
 
+    fn after_collide(&mut self) {}
+
     fn draw(&self, ctx: &mut Context) -> GameResult {
         let circle = graphics::Mesh::new_circle(
             ctx,
@@ -51,7 +53,12 @@ impl Body for Ball {
         graphics::draw(ctx, &circle, (intoMintVec2(self.pos),))?;
 
         for other_pos in self.other_side_positions() {
-            graphics::draw(ctx, &circle, (intoMintVec2(other_pos),))?;
+            graphics::draw(ctx, &circle, (intoMintVec2(other_pos), Color {
+                r: 0.5,
+                g: 0.5,
+                b: 0.5,
+                a: 1.0,
+            }))?;
         }
         Ok(())
     }

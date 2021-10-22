@@ -16,20 +16,29 @@ pub trait Body {
                         let d = *o_pos - *s_pos;
                         let hrd = *o_size / 2.0; // Half ot the rectangle diagonal
 
-                        let diff_x = d.x.abs() - *s_radius - hrd.x;
-                        let diff_y = d.y.abs() - *s_radius - hrd.y;
+                        let diff_x = *s_radius + hrd.x - d.x.abs();
+                        let diff_y = *s_radius + hrd.y - d.y.abs();
 
-                        // TODO: LOL WE CAN'T
                         let collision_point_x = d.x.abs() - (s_radius.powf(2.0) - (hrd.y - d.y.abs()).powf(2.0)).sqrt();
                         let collision_point_y = d.y.abs() - (s_radius.powf(2.0) - (hrd.x - d.x.abs()).powf(2.0)).sqrt();
-                        if diff_x < 0.0 && collision_point_y < hrd.y {
-                            s_pos.x += diff_x * d.x.signum();
-                            s_movement.x = -(s_movement.x + s_movement.x.signum() * BALL_COLLISION_SPEED_INCREMENT);
-                            // TODO: Set direction relative to impact point
-                        } else if diff_y < 0.0 && collision_point_x < hrd.x {
-                            s_pos.y += diff_y * d.y.signum();
+                        if diff_x > 0.0 && collision_point_y < hrd.y {
+                            if !collision_point_x.is_nan() && collision_point_x < hrd.x && d.y.abs() > hrd.y {
+                                s_pos.x -= (hrd.x - collision_point_x) * d.x.signum();
+                            } else {
+                                s_pos.x -= diff_x * d.x.signum();
+                            }
+                            let speed = s_movement.magnitude();
+                            let d = (*s_pos - *o_pos).normalize();
+                            *s_movement = d * (speed + BALL_COLLISION_SPEED_INCREMENT);
+                            other.after_collide();
+                        } else if diff_y > 0.0 && collision_point_x < hrd.x {
+                            if !collision_point_y.is_nan() && collision_point_y < hrd.y && d.x.abs() > hrd.x {
+                                s_pos.y -= (hrd.y - collision_point_y) * d.y.signum();
+                            } else {
+                                s_pos.y -= diff_y * d.y.signum();
+                            }
                             s_movement.y = -(s_movement.y + s_movement.y.signum() * BALL_COLLISION_SPEED_INCREMENT);
-                            // TODO: Set direction relative to impact point
+                            other.after_collide();
                         }
                     }
                     _ => {}
@@ -38,6 +47,7 @@ pub trait Body {
             _ => {}
         }
     }
+    fn after_collide(&mut self, );
     fn draw(&self, ctx: &mut Context) -> GameResult;
     fn shape(&mut self) -> (Shape, &mut Vector2<f32>);
 }
